@@ -1,68 +1,68 @@
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { DownloadCloud, Bookmark, Delete, Download } from 'react-feather';
+import { DownloadCloud, Bookmark, Delete } from 'react-feather';
 
-import { 
-  add, 
+import {
   addToCurrentNumber, 
-  deleteFromCurrentNumber, 
-  selectCurrentOperation,
+  deleteFromCurrentNumber,
   setOperator,
   calculateAll,
   clear,
   readNumber,
   storeNumber,
-} from '../redux/operationSlice';
+} from './operationSlice';
 
 import Button from './Button';
 
 const Container = styled.div`
-  display: flex;
-`;
-
-const NumberGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-`;
-
-const OperatorGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 `;
 
 const ButtonGrid = () => {
-  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
-  const operators = [
-    { 
-      operator: '+',
-      text: '+',
-    },
-    { 
-      operator: '-',
-      text: '-',
-    },
-    { 
-      operator: '*',
-      text: '×',
-    },
-    { 
-      operator: '/',
-      text: '÷',
-    },
-  ];
   const dispatch = useDispatch();
-  const currentOperation = useSelector(selectCurrentOperation);
 
-  const handleButtonClick = (e) => {
-    const number = e.target.value;
+  const handleNumberButtonClick = (number) => {
     dispatch(addToCurrentNumber(number));
   };
 
-  const handleOperatorClick = (e) => {
-    const operator = e.target.value;
+  const handleOperatorClick = (operator) => {
     dispatch(setOperator(operator));
   };
+
+  const handleEqualsClick = () => {
+    dispatch(calculateAll());
+  };
+
+  const handleDeleteClick = () => {
+    dispatch(deleteFromCurrentNumber());
+  };
+
+  const keyDownHandler = (e) => {
+    if (['.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(e.key)) {
+      handleNumberButtonClick(e.key);
+    }
+
+    if (['+', '-', '*', '/'].includes(e.key)) {
+      handleOperatorClick(e.key);
+    }
+
+    if (e.key === 'Backspace') {
+      handleDeleteClick();
+    }
+
+    if (e.key === 'Enter') {
+      handleEqualsClick();
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', keyDownHandler);
+    return () => {
+      window.removeEventListener('keydown', keyDownHandler);
+    };
+  }, []);
 
   const operatorBtnStyle = {
     backgroundColor: '#c6852c',
@@ -70,26 +70,32 @@ const ButtonGrid = () => {
 
   return (
     <Container>
-      <NumberGrid>
-        {numbers.map((number) => <Button onClick={handleButtonClick} value={number}>{number}</Button>)}
-        <Button onClick={handleButtonClick} value={'.'} >.</Button>
-        <Button onClick={() => dispatch(calculateAll())}>=</Button>
         <Button onClick={() => dispatch(clear())}>CA</Button>
-        <Button onClick={() => dispatch(deleteFromCurrentNumber())}><Delete /></Button>
+        <Button onClick={handleDeleteClick}><Delete /></Button>
         <Button onClick={() => dispatch(readNumber())}><DownloadCloud /></Button>
-      </NumberGrid>
-      <OperatorGrid>
-        {operators.map((operator) => (
-          <Button 
-            style={operatorBtnStyle} 
-            onClick={handleOperatorClick} 
-            value={operator.operator}
-          >
-            {operator.text}
-          </Button>
-        ))}
         <Button onClick={() => dispatch(storeNumber())}><Bookmark /></Button>
-      </OperatorGrid>
+
+        {[1, 2, 3].map((number) => <Button onClick={() => handleNumberButtonClick(number)}>{number}</Button>)}
+        <Button style={operatorBtnStyle} onClick={() => handleOperatorClick('+')}>
+          +
+        </Button>
+
+        {[4, 5, 6].map((number) => <Button onClick={() => handleNumberButtonClick(number)}>{number}</Button>)}
+        <Button style={operatorBtnStyle} onClick={() => handleOperatorClick('-')} value="-">
+          -
+        </Button>
+
+        {[7, 8, 9].map((number) => <Button onClick={() => handleNumberButtonClick(number)}>{number}</Button>)}
+        <Button style={operatorBtnStyle} onClick={() => handleOperatorClick('*')} value="*">
+          ×
+        </Button>
+      
+        <Button onClick={handleEqualsClick}>=</Button>
+        <Button onClick={() => handleNumberButtonClick(0)}>0</Button>
+        <Button onClick={() => handleNumberButtonClick('.')}>.</Button>
+        <Button style={operatorBtnStyle} onClick={() => handleOperatorClick('/')}>
+          ÷
+        </Button>
     </Container>
   );
 };

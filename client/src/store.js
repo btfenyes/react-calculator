@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import operationReducer from './redux/operationSlice';
+import operationReducer from './components/operationSlice';
 
 export const store = configureStore({
   reducer: {

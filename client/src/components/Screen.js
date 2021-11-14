@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 
-import { selectOperations, selectCurrentOperation } from '../redux/operationSlice';
+import { selectOperations, selectCurrentOperation } from './operationSlice';
 
 const Div = styled.div`
   font-family: 'Digital';

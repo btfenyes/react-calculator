@@ -21,12 +21,7 @@ export const operationSlice = createSlice({
   name: 'operation',
   initialState,
   reducers: {
-    add: (state, action) => {
-      // TODO: Input validation
-      // if (!Number.isNaN(action.number) || ) {
-
-      // }
-      
+    addCurrentOperation: (state, action) => {
       state.operations.push(state.currentOperation);
     },
     addToCurrentNumber: (state, action) => {
@@ -67,11 +62,53 @@ export const operationSlice = createSlice({
   },
 });
 
-export const { add, addToCurrentNumber, setCurrentOperator, clear } = operationSlice.actions;
+export const { addCurrentOperation, addToCurrentNumber, setCurrentOperator, clear } = operationSlice.actions;
 const { resetCurrentOperation, setOperations, setCurrentOperation, setCurrentNumber } = operationSlice.actions;
 
 export const selectOperations = (state) => state.calculator.operations;
 export const selectCurrentOperation = (state) => state.calculator.currentOperation;
+
+export const setOperator = (operator) => (dispatch, getState) => {
+  const state = getState().calculator;
+  if (state.operations.length === 1 && state.currentOperation.number === '') {
+    return;
+  }
+
+  if (state.currentOperation.number !== '') {
+    dispatch(add());
+    dispatch(resetCurrentOperation());
+  }
+
+  dispatch(setCurrentOperator(operator));
+};
+
+export const readNumber = () => (dispatch, getState) => {
+  dispatch(fetchNumber());
+};
+
+export const storeNumber = () => (dispatch, getState) => {
+  calculateAll();
+  const state = getState().calculator;
+  axios.post(`/number/${state.currentOperation.number}`);
+};
+
+export const deleteFromCurrentNumber = () => (dispatch, getState) => {
+  const currentNum = getState().calculator.currentOperation.number;
+  dispatch(setCurrentNumber(currentNum.substring(0, currentNum.length - 1)));
+};
+
+const nextIsPriority = (operations, index) => index < operations.length - 1 && isPriority(operations[index + 1].operator);
+const isPriority = (operator) => ['*', '/'].includes(operator);
+
+const getPrevNumber = (operations, currentIndex) => {
+  if (currentIndex === 0) {
+    return 0;
+  }
+
+  const prevOperation = operations[currentIndex - 1];
+
+  return prevOperation.operator === '-' ? prevOperation.number * -1 : prevOperation.number;
+};
 
 const calculate = (num1, num2, operator) => {
   const number1 = Number(num1);
@@ -89,35 +126,7 @@ const calculate = (num1, num2, operator) => {
   }
 };
 
-const isPriority = (operator) => ['*', '/'].includes(operator);
-
-const getPrevNumber = (operations, currentIndex) => {
-  if (currentIndex === 0) {
-    return 0;
-  }
-
-  const prevOperation = operations[currentIndex - 1];
-
-  return prevOperation.operator === '-' ? prevOperation.number * -1 : prevOperation.number;
-};
-
-export const setOperator = (operator) => (dispatch, getState) => {
-  const state = getState().calculator;
-  if (state.operations.length === 1 && state.currentOperation.number === '') {
-    return;
-  }
-
-  if (state.currentOperation.number !== '') {
-    dispatch(add());
-    dispatch(resetCurrentOperation());
-  }
-
-  dispatch(setCurrentOperator(operator));
-};
-
-const nextIsPriority = (operations, index) => index < operations.length - 1 && isPriority(operations[index + 1].operator);
-
-const calculatePriority = (operations) => {
+const calculateMultiplicationAndDivision = (operations) => {
   let partialResult = null;
   return operations.reduce((acc, curr, index) => {
     if (isPriority(curr.operator)) {
@@ -141,7 +150,7 @@ const calculatePriority = (operations) => {
   }, [])
 };
 
-const calculateRemainder = (operations) => (
+const calculateAdditionAndSubtraction = (operations) => (
   operations.reduce((acc, curr, index) => {
     if (index === 0) {
       if (curr.operator === '-') {
@@ -164,26 +173,11 @@ export const calculateAll = () => (dispatch, getState) => {
   dispatch(resetCurrentOperation());
 
   const operations = selectOperations(getState());
-  const partialResult = calculatePriority(operations);
-  const result = calculateRemainder(partialResult);
+  const partialResult = calculateMultiplicationAndDivision(operations);
+  const result = calculateAdditionAndSubtraction(partialResult);
 
   dispatch(setOperations([]));
-  dispatch(setCurrentOperation({ number: Math.abs(result), operator: result >= 0 ? '+' : '-' }));
-};
-
-export const readNumber = () => (dispatch, getState) => {
-  dispatch(fetchNumber());
-};
-
-export const storeNumber = () => (dispatch, getState) => {
-  calculateAll();
-  const state = getState().calculator;
-  axios.post(`/number/${state.currentOperation.number}`);
-};
-
-export const deleteFromCurrentNumber = () => (dispatch, getState) => {
-  const currentNum = getState().calculator.currentOperation.number;
-  dispatch(setCurrentNumber(currentNum.substring(0, currentNum.length - 1)));
+  dispatch(setCurrentOperation({ number: Math.abs(result).toString(), operator: result >= 0 ? '+' : '-' }));
 };
 
 export default operationSlice.reducer;

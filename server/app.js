@@ -15,7 +15,6 @@ app.post('/number/:number', (req, res) => {
 });
 
 app.get('/number', (req, res) => {
-  console.log(req)
   fs.readFile('number.txt', 'utf-8', (err, data) => {
     if (err) {
       res.status(400).send(err.message);
