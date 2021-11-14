@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { bgColor } from '../styles';
+import { bgColor, boxShadowColorOne, boxShadowColorTwo } from '../styles';
 
 const StyledButton = styled.button`
   ${bgColor};
@@ -10,7 +10,8 @@ const StyledButton = styled.button`
   margin: 1rem;
   border: none;
   border-radius: 50%;
-  box-shadow:  20px 20px 60px #8a9ea4, -20px -20px 60px #d4f2fa;
+  box-shadow:  20px 20px 60px ${boxShadowColorOne}, -20px -20px 60px ${boxShadowColorTwo};
+  color: lightgray;
   cursor: pointer;
 `;
 

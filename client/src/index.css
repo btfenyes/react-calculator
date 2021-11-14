@@ -14,3 +14,9 @@ body {
 html, body, #root {
   height: 100%
 }
+
+
+@font-face {
+  font-family: 'Digital';
+  src: local('Digital'), url('./fonts/Digital.ttf') format('truetype');
+}

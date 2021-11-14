@@ -1,4 +1,13 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
+
+const fetchNumber = createAsyncThunk(
+  'number/read',
+  async (_, thunkAPI) => {
+    const response = await axios.get('/number');
+    return response.data.toString();
+  },
+);
 
 const initialState = {
   operations: [],
@@ -21,23 +30,26 @@ export const operationSlice = createSlice({
       state.operations.push(state.currentOperation);
     },
     addToCurrentNumber: (state, action) => {
+      if (action.payload === '.' && state.currentOperation.number.endsWith('.')) {
+        return;
+      }
+      
       state.currentOperation.number += action.payload;
-    },
-    deleteFromCurrentNumber: (state, action) => {
-      const currentNum = state.currentOperation.number;
-      state.currentOperation.number = currentNum.substring(0, currentNum.length - 1);
     },
     setCurrentOperator: (state, action) => {
       state.currentOperation.operator = action.payload;
     },
+    setCurrentNumber: (state, action) => {
+      state.currentOperation.number = action.payload;
+    },
     resetCurrentOperation: (state, action) => {
       state.currentOperation = { operator: '', number: '' };
     },
-    setOperations: (state, action) => {
-      state.operations = action.payload;
-    },
     setCurrentOperation: (state, action) => {
       state.currentOperation = action.payload;
+    },
+    setOperations: (state, action) => {
+      state.operations = action.payload;
     },
     clear: (state, action) => {
       state.currentOperation = {
@@ -47,10 +59,16 @@ export const operationSlice = createSlice({
       state.operations = [];
     },
   },
+  extraReducers: (builder) => {
+    builder.addCase(fetchNumber.fulfilled, (state, action) => {
+      state.currentOperation.number = action.payload;
+      state.currentOperation.operator = Number(action.payload) >= 0 ? '+' : '-';
+    });
+  },
 });
 
 export const { add, addToCurrentNumber, setCurrentOperator, clear } = operationSlice.actions;
-const { resetCurrentOperation, setOperations, setCurrentOperation } = operationSlice.actions;
+const { resetCurrentOperation, setOperations, setCurrentOperation, setCurrentNumber } = operationSlice.actions;
 
 export const selectOperations = (state) => state.calculator.operations;
 export const selectCurrentOperation = (state) => state.calculator.currentOperation;
@@ -151,6 +169,21 @@ export const calculateAll = () => (dispatch, getState) => {
 
   dispatch(setOperations([]));
   dispatch(setCurrentOperation({ number: Math.abs(result), operator: result >= 0 ? '+' : '-' }));
+};
+
+export const readNumber = () => (dispatch, getState) => {
+  dispatch(fetchNumber());
+};
+
+export const storeNumber = () => (dispatch, getState) => {
+  calculateAll();
+  const state = getState().calculator;
+  axios.post(`/number/${state.currentOperation.number}`);
+};
+
+export const deleteFromCurrentNumber = () => (dispatch, getState) => {
+  const currentNum = getState().calculator.currentOperation.number;
+  dispatch(setCurrentNumber(currentNum.substring(0, currentNum.length - 1)));
 };
 
 export default operationSlice.reducer;

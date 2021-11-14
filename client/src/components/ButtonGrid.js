@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import { DownloadCloud, Bookmark, Delete, Download } from 'react-feather';
 
 import { 
   add, 
   addToCurrentNumber, 
-  setCurrentOperator, 
+  deleteFromCurrentNumber, 
   selectCurrentOperation,
   setOperator,
   calculateAll,
   clear,
+  readNumber,
+  storeNumber,
 } from '../redux/operationSlice';
 
 import Button from './Button';
@@ -61,16 +64,31 @@ const ButtonGrid = () => {
     dispatch(setOperator(operator));
   };
 
+  const operatorBtnStyle = {
+    backgroundColor: '#c6852c',
+  };
+
   return (
     <Container>
       <NumberGrid>
         {numbers.map((number) => <Button onClick={handleButtonClick} value={number}>{number}</Button>)}
         <Button onClick={handleButtonClick} value={'.'} >.</Button>
         <Button onClick={() => dispatch(calculateAll())}>=</Button>
-        <Button onClick={() => dispatch(clear())}>C</Button>
+        <Button onClick={() => dispatch(clear())}>CA</Button>
+        <Button onClick={() => dispatch(deleteFromCurrentNumber())}><Delete /></Button>
+        <Button onClick={() => dispatch(readNumber())}><DownloadCloud /></Button>
       </NumberGrid>
       <OperatorGrid>
-        {operators.map((operator) => <Button onClick={handleOperatorClick} value={operator.operator}>{operator.text}</Button>)}
+        {operators.map((operator) => (
+          <Button 
+            style={operatorBtnStyle} 
+            onClick={handleOperatorClick} 
+            value={operator.operator}
+          >
+            {operator.text}
+          </Button>
+        ))}
+        <Button onClick={() => dispatch(storeNumber())}><Bookmark /></Button>
       </OperatorGrid>
     </Container>
   );

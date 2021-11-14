@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import Screen from './Screen';
 import ButtonGrid from './ButtonGrid';
-import { bgColor } from '../styles';
+import { bgColor, boxShadowColorOne, boxShadowColorTwo } from '../styles';
 
 const Div = styled.div`
   ${bgColor}
@@ -12,7 +12,8 @@ const Div = styled.div`
   justify-content: start;
   align-items: center;
   border-radius: 2rem;
-  box-shadow:  20px 20px 60px #8a9ea4, -20px -20px 60px #d4f2fa;
+  max-width: 28rem;
+  box-shadow:  1.4rem 1.4rem 2.5rem ${boxShadowColorOne}, -1.4rem -1.4rem 2.5rem ${boxShadowColorTwo};
 `;
 
 const Calculator = () => {

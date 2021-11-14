@@ -5,10 +5,42 @@ import { useSelector } from 'react-redux';
 import { selectOperations, selectCurrentOperation } from '../redux/operationSlice';
 
 const Div = styled.div`
+  font-family: 'Digital';
+
   width: 80%;
-  margin: 1rem;
+  margin: 2rem;
   font-size: 3rem;
   padding: .2rem .6rem;
+  min-height: 4.4rem;
+  display: flex;
+  align-items: center;
+  overflow: auto;
+
+  &::-webkit-scrollbar {
+  width: 2rem;
+  height: 1.2rem;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    height: .4rem;
+    border: .2rem solid rgba(0, 0, 0, 0);
+    background-clip: padding-box;
+    border-radius: .6rem;
+    background-color: #8e8e8e;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #8e8e8e;
+  }
+
+  &::-webkit-scrollbar-button {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+  &::-webkit-scrollbar-corner {
+    background-color: transparent;
+  }
 
   border-radius: 1rem;
   background: #c6e3d6;
@@ -28,7 +60,7 @@ const Screen = () => {
   });
 
   return (
-    <Div>
+    <Div className="custom-scrollbar">
       {calculation}
     </Div>
   );
