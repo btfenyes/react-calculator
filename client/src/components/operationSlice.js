@@ -75,7 +75,7 @@ export const setOperator = (operator) => (dispatch, getState) => {
   }
 
   if (state.currentOperation.number !== '') {
-    dispatch(add());
+    dispatch(addCurrentOperation());
     dispatch(resetCurrentOperation());
   }
 
@@ -167,7 +167,7 @@ const calculateAdditionAndSubtraction = (operations) => (
 export const calculateAll = () => (dispatch, getState) => {
   const state = getState().calculator;
   if (state.currentOperation.operator !== '' && state.currentOperation.operator !== '') {
-    dispatch(add());
+    dispatch(addCurrentOperation());
   }
 
   dispatch(resetCurrentOperation());
